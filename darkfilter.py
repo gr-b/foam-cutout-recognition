@@ -11,7 +11,7 @@ import cv2, sys
 import numpy as np
 
 class DarkFilter:
-    def __init__(self):
+    def __init__(self, thresh):
         # We first define all of the constants that we need.
         # Dilation kernel
         self.dilatekernel = np.ones((5,5), np.uint8) 
@@ -20,7 +20,7 @@ class DarkFilter:
         # A Cross Erosion kernel
         self.erode2kernel= np.array([ [ 0, 1, 0] , [ 1, 1, 1] , [ 0, 1, 0]], np.uint8)
         # These are the grayscale threshold values
-        self.thresh = 50
+        self.thresh = thresh#50
         self.maxValue = 255
         # Now we can do the filtering
 
@@ -35,7 +35,7 @@ class DarkFilter:
 if __name__=='__main__':
     #img = cv2.imread('./longneck/close/3.jpg')
     img = cv2.imread('../testimages/longneck/far/175.jpg')
-    thefilter = DarkFilter()
+    thefilter = DarkFilter(50)
     res = thefilter.doDarkFilter(img)
     # Now, display it
     cv2.imshow('Image',img)

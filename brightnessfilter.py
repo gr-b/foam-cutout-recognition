@@ -14,25 +14,22 @@ from darkfilter import DarkFilter as df
 from lightfilter import LightFilter as lf
 
 class IsolateBrightness:
-    def __init__(self):
-        self.dark  = df()
-        self.light = lf()
+    def __init__(self, lower, upper):
+        self.dark  = df(lower)
+        self.light = lf(upper)
 
     def isolateBrightness(self, src):
         # First we remove the dark colors
         brightened = self.dark.doDarkFilter(src)
         # Then we remove the light colors
-        #darkened = self.light.doLightFilter(brightened)
         return self.light.doLightFilter(brightened)
-        # Now we have the result we want.
-        #return darkened
 
 # demo the brightness filtering
 if __name__=='__main__':
     #img = cv2.imread('../testimages/longneck/close/3.jpg')
     #img = cv2.imread('../testimages/longneck/far/175.jpg')
     img = cv2.imread('../testimages/longneck/far/140.jpg')
-    thefilter = IsolateBrightness()
+    thefilter = IsolateBrightness(50, 180)
     res = thefilter.isolateBrightness(img)
     print(res.shape)
     # Now, display it

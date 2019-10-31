@@ -11,7 +11,7 @@ import cv2, sys
 import numpy as np
 
 class LightFilter:
-    def __init__(self):
+    def __init__(self, thresh):
         # We first define all of the constants that we need.
         # Dilation kernel
         self.dilatekernel = np.ones((5,5), np.uint8) 
@@ -22,7 +22,7 @@ class LightFilter:
         # These are the grayscale threshold values - we could go more risky with lower upper threshold values,
         # but we don't want to risk it.
         #self.thresh = 175
-        self.thresh = 180
+        self.thresh = thresh#180
         self.maxValue = 255
         # Now we can do the filtering
 
@@ -40,7 +40,7 @@ class LightFilter:
 if __name__=='__main__':
     #img = cv2.imread('./longneck/close/3.jpg')
     img = cv2.imread('../testimages/longneck/far/175.jpg')
-    thefilter = LightFilter()
+    thefilter = LightFilter(180)
     #res , mask= thefilter.doLightFilter(img)
     res = thefilter.doLightFilter(img)
     # Now, display it
