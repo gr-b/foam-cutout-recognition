@@ -39,9 +39,11 @@ class PixelSDT:
 if __name__=='__main__':
     #img = cv2.imread('../testimages/longneck/close/3.jpg')
     #img = cv2.imread('../testimages/longneck/far/175.jpg')
-    img = cv2.imread('../testimages/longneck/far/120.jpg')
+    #img = cv2.imread('../testimages/longneck/far/120.jpg')
+    img = cv2.imread('../testimages/longneck/close/12.jpg')
     # Try out different float values into the constructor
-    thefilter = PixelSDT(9)
+    #thefilter = PixelSDT(9)
+    thefilter = PixelSDT(10)
     res = thefilter.stdfilter(img)
     print(res.shape)
     # Now, display it
