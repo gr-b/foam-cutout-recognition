@@ -10,9 +10,7 @@ import numpy as np
 import torchvision
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
-import time
-import os
-import copy
+import time, os, copy
 print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 
@@ -32,7 +30,6 @@ num_epochs = 15
 # Flag for feature extracting. When False, we finetune the whole model,
 #   when True we only update the reshaped layer params
 feature_extract = True
-
 
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_inception=False):
     since = time.time()
@@ -103,7 +100,6 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
     # load best model weights
     model.load_state_dict(best_model_wts)
     return model, val_acc_history
-
 
 def set_parameter_requires_grad(model, feature_extracting):
     if feature_extracting:
@@ -177,7 +173,6 @@ dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size
 # Detect if we have a GPU available
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 #######################################
 
 # Send the model to GPU
@@ -203,11 +198,6 @@ else:
 
 # Observe that all parameters are being optimized
 optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
-
-
-
-
-
 
 # Setup the loss fxn
 criterion = nn.CrossEntropyLoss()
