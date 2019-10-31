@@ -13,7 +13,39 @@ import copy
 print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 
-model = torch.load("model-vgg.pt")
+# Default assume that we do NOT have CUDA
+dowehavecuda = False
+
+if torch.cuda.is_available():
+    # Now we detect if our CUDA version is too old
+    try:
+        torch.cuda.current_device()
+        dowehavecuda = True
+    except:
+        print("Cuda to old. using CPU.")
+
+# Now we actually open the model
+if dowehavecuda:
+    # load original model
+    model = torch.load("model-squeezenet.pt")
+else:
+    # load the cpu version of it
+    model = torch.load("model-squeezenet.pt", map_location=torch.device('cpu'))
+
+"""if torch.cuda.is_available():
+    #model = torch.load("model-vgg.pt")
+    try:
+        torch.cuda.current_device() # this will error out if too old
+        #model = torch.load("model-squeezenet.pt")
+        model = torch.load("model-squeezenet.pt", map_location=torch.device('gpu'))
+    except:
+        # If we get here, this means that the cuda version is too old, so we use cpu
+        model = torch.load("model-squeezenet.pt", map_location=torch.device('cpu'))
+else:
+    # We default to CPU version
+    model = torch.load("model-squeezenet.pt", map_location=torch.device('cpu'))"""
+
+
 
 data_dir = "./data/"
 input_size=224
@@ -45,7 +77,6 @@ data_transforms = {
     ]),
 }
 
-
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['train', 'val', 'test']}
 # Create training and validation dataloaders
 dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=4) for x in ['train', 'val', 'test']}
@@ -55,9 +86,14 @@ dataloader = dataloaders_dict['test'] # Get validation dataloader
 running_corrects = 0
 start = time.time()
 for images, labels in dataloader:
-    images_ = images.cuda()
-    labels_ = labels.cuda()
-
+    # CUDA check again
+    if dowehavecuda:
+        images_ = images.cuda()
+        labels_ = labels.cuda()
+    else:
+        images_ = images
+        labels_ = labels
+    # back to the important part
     outputs = model(images_)
     _, predicteds = torch.max(outputs, 1)
     running_corrects += torch.sum(predicteds == labels_.data)
