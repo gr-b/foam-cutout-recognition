@@ -34,17 +34,18 @@ class LightFilter:
         # Then we invert to keep the darker color
         lightmask = cv2.bitwise_not(darkmask)
         # Mask the original image with the light color removing mask
-        #return cv2.bitwise_and(src,src, mask= lightmask)
-        return cv2.bitwise_and(src,src, mask= lightmask) , lightmask
+        return cv2.bitwise_and(src,src, mask= lightmask)
+        #return cv2.bitwise_and(src,src, mask= lightmask) , lightmask
 
 if __name__=='__main__':
     #img = cv2.imread('./longneck/close/3.jpg')
     img = cv2.imread('../testimages/longneck/far/175.jpg')
     thefilter = LightFilter()
-    res , mask= thefilter.doLightFilter(img)
+    #res , mask= thefilter.doLightFilter(img)
+    res = thefilter.doLightFilter(img)
     # Now, display it
     cv2.imshow('Image',img)
-    cv2.imshow('The light mask',mask)
+    #cv2.imshow('The light mask',mask)
     cv2.imshow('result',res)
     cv2.waitKey(0) # waits until a key is pressed
     cv2.destroyAllWindows() # destroys the window showing image
