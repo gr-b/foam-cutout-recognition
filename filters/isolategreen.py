@@ -40,7 +40,7 @@ class FindGreen:
 if __name__=='__main__':
     #img = cv2.imread('./longneck/close/3.jpg')
     #img = cv2.imread('../testimages/longneck/far/175.jpg')
-    img = cv2.imread('../testimages/longneck/far/100.jpg')
+    img = cv2.imread('../../testimages/longneck/far/100.jpg')
     # HSV = HSB
     # value = brightness
     # Hue, saturation, and value

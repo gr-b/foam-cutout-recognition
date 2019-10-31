@@ -14,9 +14,9 @@ from darkfilter import DarkFilter as df
 from brightnessfilter import IsolateBrightness as bf
 
 # We are going to simply terate through all files in the specified directory and then 
-srcdir = "../testimages/longneck/far/"
+srcdir = "../../testimages/longneck/far/"
 # And then save the new files to here
-destdir = "../genimages/longneck/far/"
+destdir = "../../genimages/longneck/far/"
 
 # check if destination does not exist
 if not os.path.exists(destdir):

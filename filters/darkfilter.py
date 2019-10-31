@@ -34,7 +34,7 @@ class DarkFilter:
 
 if __name__=='__main__':
     #img = cv2.imread('./longneck/close/3.jpg')
-    img = cv2.imread('../testimages/longneck/far/175.jpg')
+    img = cv2.imread('../../testimages/longneck/far/175.jpg')
     thefilter = DarkFilter(50)
     res = thefilter.doDarkFilter(img)
     # Now, display it

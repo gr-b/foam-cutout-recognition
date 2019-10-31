@@ -15,7 +15,7 @@ from pixelstd import PixelSDT as pix
 if __name__=='__main__':
     #img = cv2.imread('../testimages/longneck/close/3.jpg')
     #img = cv2.imread('../testimages/longneck/far/175.jpg')
-    img = cv2.imread('../testimages/longneck/far/140.jpg')
+    img = cv2.imread('../../testimages/longneck/far/140.jpg')
     thefilter = ib(50, 175)
     dostd = pix(9.5)
     # brightness filter

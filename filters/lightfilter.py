@@ -39,7 +39,7 @@ class LightFilter:
 
 if __name__=='__main__':
     #img = cv2.imread('./longneck/close/3.jpg')
-    img = cv2.imread('../testimages/longneck/far/175.jpg')
+    img = cv2.imread('../../testimages/longneck/far/175.jpg')
     thefilter = LightFilter(180)
     #res , mask= thefilter.doLightFilter(img)
     res = thefilter.doLightFilter(img)
