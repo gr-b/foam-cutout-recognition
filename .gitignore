@@ -2,3 +2,4 @@
 model-vgg.pt
 __pycache__/
 data_10_28.zip
+model.pt
