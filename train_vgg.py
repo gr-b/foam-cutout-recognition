@@ -234,4 +234,9 @@ criterion = nn.CrossEntropyLoss()
 model_ft, hist = train_model(model_ft, dataloaders_dict, criterion,
     optimizer_ft, num_epochs=num_epochs, is_inception=(model_name=="inception"))
 
-torch.save(model_ft, "model.pt")
+# This is the old save call
+# torch.save(model_ft, "model.pt")
+
+# https://stackoverflow.com/questions/52277083/pytorch-saving-model-userwarning-couldnt-retrieve-source-code-for-container-of
+# This is the new save call
+torch.save({'state_dict': model_ft.state_dict()}, "model.pt")
