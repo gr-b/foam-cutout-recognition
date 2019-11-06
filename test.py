@@ -7,30 +7,46 @@ import numpy as np
 import torchvision
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
-import time
-import os
-import copy
+import time, os, copy
 print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 
 # Default assume that we do NOT have CUDA
 dowehavecuda = False
 
+model=None
+
+print("Checking for cuda")
 if torch.cuda.is_available():
+    print("There is a cuda on this machine")
     # Now we detect if our CUDA version is too old
     try:
         torch.cuda.current_device()
         dowehavecuda = True
+        print("We have cuda.")
     except:
         print("Cuda to old. using CPU.")
+else:
+    print("No cuda found")
 
 # Now we actually open the model
 if dowehavecuda:
     # load original model
-    model = torch.load("model-squeezenet.pt")
+    # model = torch.load("model-squeezenet.pt")
+    # model = torch.load("model.pt")
+    checkpoint = torch.load('model.pt')
 else:
     # load the cpu version of it
-    model = torch.load("model-squeezenet.pt", map_location=torch.device('cpu'))
+    # model = torch.load("model-squeezenet.pt", map_location=torch.device('cpu'))
+    # model = torch.load("model.pt", map_location=torch.device('cpu'))
+    checkpoint = torch.load("model.pt", map_location=torch.device('cpu'))
+print("Dir command")
+print(dir(checkpoint))
+print("type command")
+print(type(checkpoint))
+print("Dict keys")
+print(checkpoint.keys())
+model.load_state_dict(checkpoint['state_dict'])
 
 """if torch.cuda.is_available():
     #model = torch.load("model-vgg.pt")
