@@ -26,7 +26,7 @@ data_dir = "./data/"
 model_name = "vgg"
 
 num_classes = 2 # We're doing binary classification
-batch_size = 32
+batch_size = 24
 num_epochs = 15
 
 # Flag for feature extracting. When False, we finetune the whole model,
@@ -122,14 +122,11 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         model_ft = models.vgg11_bn(pretrained=use_pretrained)
         set_parameter_requires_grad(model_ft, feature_extract)
         num_ftrs = model_ft.classifier[6].in_features
-        model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
-        input_size = 224
-
-    elif model_name == "squeezenet":
-        model_ft = models.squeezenet1_0(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
-        model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1,1), stride=(1,1))
-        model_ft.num_classes = num_classes
+        model_ft.classifier[6] = nn.Linear(num_ftrs, 512)
+        model_ft.classifier.add_module("7", nn.ReLU(inplace=True))
+        model_ft.classifier.add_module("8", nn.Dropout(p=0.5, inplace=False))
+        model_ft.classifier.add_module("9", nn.Linear(512, num_classes))
+        model_ft.classifier.add_module("10", nn.Softmax())
         input_size = 224
 
     else:
@@ -152,16 +149,18 @@ print(f"Input size: {input_size}")
 # Just normalization for validation
 data_transforms = {
     'train': transforms.Compose([
-        transforms.RandomResizedCrop(input_size),
-	transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
+        transforms.Resize(input_size),
+	#transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
         transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(20),
+        transforms.ColorJitter(brightness=0.1),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
     'val': transforms.Compose([
         transforms.Resize(input_size),
-	transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
         transforms.CenterCrop(input_size),
+	#transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -172,7 +171,9 @@ print("Initializing Datasets and Dataloaders...")
 # Create training and validation datasets
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['train', 'val']}
 # Create training and validation dataloaders
-dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=4) for x in ['train', 'val']}
+
+#weightedSampler = torch.utils.data.sampler.WeightedRandomSampler(weights=weights, num_samples=batch_size, replacement=True)
+dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, num_workers=4, shuffle=True) for x in ['train', 'val']}
 
 # Detect if we have a GPU available
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -210,7 +211,7 @@ optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
 
 
 # Setup the loss fxn
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss()#weight=torch.FloatTensor([2, 1]).cuda())
 
 # Train and evaluate
 model_ft, hist = train_model(model_ft, dataloaders_dict, criterion,
