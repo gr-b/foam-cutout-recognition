@@ -13,52 +13,27 @@ import copy
 print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 
-model = torch.load("model-class-weighted.pt")
+model = torch.load("model.pt")
 
-data_dir = "./data/"
+data_dir = "./turntable_train_nick_small_val/"
 input_size=224
 batch_size=32
+num_classes=6
 
 print(model)
 
-data_transforms = {
-    'train': transforms.Compose([
-        transforms.RandomResizedCrop(input_size),
-	    transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-    'val': transforms.Compose([
+test_transforms = transforms.Compose([
         transforms.Resize(input_size),
-	    transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
         transforms.CenterCrop(input_size),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-    'test': transforms.Compose([
-        transforms.Resize(input_size),
-	    transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
-        transforms.CenterCrop(input_size),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-    'hard': transforms.Compose([
-        transforms.Resize(input_size),
-	    transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
-        transforms.CenterCrop(input_size),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-}
+])
 
 
-image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x]) for x in ['train', 'val', 'test', 'hard']}
-# Create training and validation dataloaders
-dataloaders_dict = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=4) for x in ['train', 'val', 'test', 'hard']}
+dataset   = datasets.ImageFolder(os.path.join(data_dir, "test"),   test_transforms)
+dataloader   = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=4, shuffle=True)
 
-dataloader = dataloaders_dict['test'] # Get validation dataloader
-
+#confusion_matrix = np.zeros((num_classes, num_classes))
 running_corrects = 0
 start = time.time()
 preds = np.array([])
@@ -73,6 +48,10 @@ for images, labels in dataloader:
 
     preds = np.append(preds, predicteds.cpu().numpy())
     labs = np.append(labs, labels.cpu().numpy())
+
+    #for i, prediction in enumerate(preds):
+    #    confusion_matrix[prediction,labels.data[i]] += 1
+
 acc = running_corrects.double() / len(dataloader.dataset)
 
 elapsed = time.time() - start

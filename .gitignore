@@ -1,2 +1,5 @@
 /data/
 model-vgg.pt
+model.pt
+/turntable*/
+/multiclass*/
