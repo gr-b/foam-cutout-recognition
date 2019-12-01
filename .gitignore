@@ -1,11 +1,8 @@
 /data/
 model-vgg.pt
-<<<<<<< HEAD
 model.pt
 /turntable*/
 /multiclass*/
-=======
 __pycache__/
 data_10_28.zip
-model.pt
->>>>>>> 7d51860a969e20b3f4e900033d131dfb5c8eebc6
+model.zip
