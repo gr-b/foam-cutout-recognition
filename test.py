@@ -7,9 +7,7 @@ import numpy as np
 import torchvision
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
-import time
-import os
-import copy
+import time, os, copy
 print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 
@@ -33,7 +31,6 @@ test_transforms = transforms.Compose([
 dataset   = datasets.ImageFolder(os.path.join(data_dir, "test"),   test_transforms)
 dataloader   = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=4, shuffle=True)
 
-#confusion_matrix = np.zeros((num_classes, num_classes))
 running_corrects = 0
 start = time.time()
 preds = np.array([])
@@ -49,8 +46,6 @@ for images, labels in dataloader:
     preds = np.append(preds, predicteds.cpu().numpy())
     labs = np.append(labs, labels.cpu().numpy())
 
-    #for i, prediction in enumerate(preds):
-    #    confusion_matrix[prediction,labels.data[i]] += 1
 
 acc = running_corrects.double() / len(dataloader.dataset)
 
