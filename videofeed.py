@@ -24,8 +24,8 @@ test_transforms = transforms.Compose([
 ])
 # This is the data structure that maps integers to the classification strings
 themap = { "0": "empty",
-           "1": "bronto",
-           "2": "fern",
+           "1": "fern",
+           "2": "bronto",
            "3": "palm",
            "4": "steg",
            "5": "tri", }
