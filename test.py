@@ -13,6 +13,8 @@ print("Torchvision Version: ",torchvision.__version__)
 
 model = torch.load("model.pt")
 
+folder_name = "test"
+
 data_dir = "./turntable_train_nick_small_val/"
 input_size=224
 batch_size=32
@@ -28,7 +30,7 @@ test_transforms = transforms.Compose([
 ])
 
 
-dataset   = datasets.ImageFolder(os.path.join(data_dir, "test"),   test_transforms)
+dataset   = datasets.ImageFolder(os.path.join(data_dir, folder_name),   test_transforms)
 dataloader   = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=4, shuffle=True)
 
 running_corrects = 0
