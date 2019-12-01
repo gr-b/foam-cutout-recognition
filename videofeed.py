@@ -14,6 +14,16 @@ print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 from PIL import Image
 import cv2
+# font 
+font = cv2.FONT_HERSHEY_SIMPLEX
+# org
+org = (20, 50)
+# fontScale 
+fontScale = 1
+# Blue color in BGR 
+color = (255, 0, 0) 
+# Line thickness of 2 px 
+thickness = 2
 # Formalize the data configuration
 input_size = 224
 test_transforms = transforms.Compose([
@@ -66,8 +76,8 @@ while True:
     # get the number from the string
     # intresult = result
     stringoutput += str(themap[str(result)])
-    print(stringoutput)
-    #
+    background = cv2.putText(background, stringoutput, org, font,  
+                   fontScale, color, thickness, cv2.LINE_AA) 
     cv2.imshow('stream',background)
     k = cv2.waitKey(10)
     # Press q to break
