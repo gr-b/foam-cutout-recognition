@@ -22,15 +22,13 @@ print("Torchvision Version: ",torchvision.__version__)
 # each with a folder for each class.
 data_dir = "./turntable_train_nick_small_val/"
 
-# Models to choose from [vgg, squeezenet]
 model_name = "vgg"
 
 num_classes = 6 # We're doing binary classification
 batch_size = 24
 num_epochs = 15
 
-# Flag for feature extracting. When False, we finetune the whole model,
-#   when True we only update the reshaped layer params
+# When false, we change weights on the whole model (even the pretrained layers)
 feature_extract = False
 
 
@@ -119,8 +117,6 @@ def set_parameter_requires_grad(model, feature_extracting):
             param.requires_grad = False
 
 def initialize_model(model_name, num_classes, feature_extract, use_pretrained=True):
-    # Initialize these variables which will be set in this if statement. Each of these
-    #   variables is model specific.
     model_ft = None
     input_size = 0
 
@@ -134,7 +130,6 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         model_ft.classifier.add_module("7", nn.ReLU(inplace=True))
         model_ft.classifier.add_module("8", nn.Dropout(p=0.5, inplace=False))
         model_ft.classifier.add_module("9", nn.Linear(512, num_classes))
-        #model_ft.classifier.add_module("10", nn.Softmax())
         input_size = 224
 
     else:
@@ -159,7 +154,6 @@ data_transforms = {
     'train': transforms.Compose([
         transforms.Resize(input_size),
         transforms.CenterCrop(input_size),
-	#transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(20),
         transforms.ColorJitter(brightness=0.1),
@@ -169,7 +163,6 @@ data_transforms = {
     'val': transforms.Compose([
         transforms.Resize(input_size),
         transforms.CenterCrop(input_size),
-	#transforms.Grayscale(num_output_channels=3), # We do grayscale because green is easy to see
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -193,11 +186,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # Send the model to GPU
 model_ft = model_ft.to(device)
 
-# Gather the parameters to be optimized/updated in this run. If we are
-#  finetuning we will be updating all parameters. However, if we are
-#  doing feature extract method, we will only update the parameters
-#  that we have just initialized, i.e. the parameters with requires_grad
-#  is True.
 params_to_update = model_ft.parameters()
 print("Params to learn:")
 if feature_extract:
@@ -216,13 +204,8 @@ optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
 
 
 
-
-
-
-# Setup the loss fxn
 criterion = nn.CrossEntropyLoss()#weight=torch.FloatTensor([2, 1]).cuda())
 
-# Train and evaluate
 model_ft, hist = train_model(model_ft, dataloaders_dict, criterion,
     optimizer_ft, num_epochs=num_epochs, is_inception=(model_name=="inception"))
 
