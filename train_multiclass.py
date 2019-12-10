@@ -20,7 +20,7 @@ print("Torchvision Version: ",torchvision.__version__)
 # Top level data directory.
 # This folder must include "train" and "test" directories,
 # each with a folder for each class.
-data_dir = "./turntable_train_nick_small_val/"
+data_dir = "./data/"
 
 model_name = "vgg"
 
@@ -31,7 +31,7 @@ num_epochs = 15
 # When false, we change weights on the whole model (even the pretrained layers)
 feature_extract = False
 
-
+# Method with the main training loop
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_inception=False):
     since = time.time()
 
@@ -40,8 +40,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
 
-    confusion_matrix = np.zeros((num_classes, num_classes))
-
+    confusion_matrix = np.zeros((num_classes, num_classes)) # Initialize the size of our confusion matrix
+                                                            # so we can see misclassifications during training
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
@@ -52,15 +52,15 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
                 model.train()  # Set model to training mode
             else:
                 model.eval()   # Set model to evaluate mode
-                confusion_matrix = np.zeros((num_classes, num_classes))
+                confusion_matrix = np.zeros((num_classes, num_classes)) # We show the misclassifications on the validation set each epoch
 
             running_loss = 0.0
             running_corrects = 0
 
-            # Iterate over data.
+            # Iterate over data - dataloaders is a dictionary with "train" and "val" entries
             for inputs, labels in dataloaders[phase]:
-                inputs = inputs.to(device)
-                labels = labels.to(device)
+                inputs = inputs.to(device) # NOTE: Remove this line if not using GPU
+                labels = labels.to(device) # NOTE: Remove this line if not using GPU
 
                 # zero the parameter gradients
                 optimizer.zero_grad()
@@ -110,12 +110,13 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
     model.load_state_dict(best_model_wts)
     return model, val_acc_history
 
-
+# Makes it so we don't train the pretrained weights if we set to extract features.
 def set_parameter_requires_grad(model, feature_extracting):
     if feature_extracting:
         for param in model.parameters():
             param.requires_grad = False
 
+# Method to download and set up the VGG11 pretrained weights
 def initialize_model(model_name, num_classes, feature_extract, use_pretrained=True):
     model_ft = None
     input_size = 0
@@ -125,10 +126,10 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         """
         model_ft = models.vgg11_bn(pretrained=use_pretrained)
         set_parameter_requires_grad(model_ft, feature_extract)
-        num_ftrs = model_ft.classifier[6].in_features
-        model_ft.classifier[6] = nn.Linear(num_ftrs, 512)
+        num_ftrs = model_ft.classifier[6].in_features     # Chop off end of VGG11
+        model_ft.classifier[6] = nn.Linear(num_ftrs, 512) # Add several new layers
         model_ft.classifier.add_module("7", nn.ReLU(inplace=True))
-        model_ft.classifier.add_module("8", nn.Dropout(p=0.5, inplace=False))
+        model_ft.classifier.add_module("8", nn.Dropout(p=0.5, inplace=False)) # Dropout for regularization
         model_ft.classifier.add_module("9", nn.Linear(512, num_classes))
         input_size = 224
 
@@ -146,7 +147,8 @@ print(model_ft)
 print(f"Input size: {input_size}")
 
 #######################################
-
+#     Data Loading & Augmentation     #
+#######################################
 
 # Data augmentation and normalization for training
 # Just normalization for validation
@@ -158,13 +160,13 @@ data_transforms = {
         transforms.RandomRotation(20),
         transforms.ColorJitter(brightness=0.1),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]) # VGG11 takes in normalized values
     ]),
     'val': transforms.Compose([
         transforms.Resize(input_size),
         transforms.CenterCrop(input_size),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]) # VGG11 takes in normalized values
     ]),
 }
 
@@ -182,9 +184,11 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 #######################################
+#              Training               #
+#######################################
 
 # Send the model to GPU
-model_ft = model_ft.to(device)
+model_ft = model_ft.to(device) # NOTE: Remove this line if not using GPU
 
 params_to_update = model_ft.parameters()
 print("Params to learn:")
@@ -204,8 +208,7 @@ optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
 
 
 
-criterion = nn.CrossEntropyLoss()#weight=torch.FloatTensor([2, 1]).cuda())
-
+criterion = nn.CrossEntropyLoss()
 model_ft, hist = train_model(model_ft, dataloaders_dict, criterion,
     optimizer_ft, num_epochs=num_epochs, is_inception=(model_name=="inception"))
 

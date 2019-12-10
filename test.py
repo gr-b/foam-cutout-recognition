@@ -15,35 +15,36 @@ model = torch.load("model.pt")
 
 folder_name = "test"
 
-data_dir = "./turntable_train_nick_small_val/"
+data_dir = "./data/"
 input_size=224
 batch_size=32
 num_classes=6
 
 print(model)
 
+# Set up image transforms to resize can crop to 224 by 224
 test_transforms = transforms.Compose([
         transforms.Resize(input_size),
         transforms.CenterCrop(input_size),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]) # VGG11 takes in normalized values
 ])
 
-
+# Set up data dataset and dataloader
 dataset   = datasets.ImageFolder(os.path.join(data_dir, folder_name),   test_transforms)
 dataloader   = torch.utils.data.DataLoader(dataset, batch_size=batch_size, num_workers=4, shuffle=True)
 
-running_corrects = 0
+running_corrects = 0 # Keep track of the number we get right in testing
 start = time.time()
-preds = np.array([])
-labs = np.array([])
+preds = np.array([]) # Array to store the predicted values (for confusion matrix)
+labs = np.array([])  # Array to store the real ground truth values (for confusion matrix)
 for images, labels in dataloader:
-    images_ = images.cuda()
-    labels_ = labels.cuda()
+    images_ = images.cuda() # NOTE: Remove this line if not using GPU
+    labels_ = labels.cuda() # NOTE: Remove this line if not using GPU
 
     outputs = model(images_)
-    _, predicteds = torch.max(outputs, 1)
-    running_corrects += torch.sum(predicteds == labels_.data)
+    _, predicteds = torch.max(outputs, 1) # max produces the max, and the index of the max
+    running_corrects += torch.sum(predicteds == labels_.data) # Update how many we get correct from this batch
 
     preds = np.append(preds, predicteds.cpu().numpy())
     labs = np.append(labs, labels.cpu().numpy())
