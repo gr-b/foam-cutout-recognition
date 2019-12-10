@@ -20,3 +20,9 @@ We used the VGG11 pre-trained classification network, fine-tuning it on our robo
 2. Run `train_multiclass.py`    Note: Comment out certain lines if not using GPU with cuda
     This will write a "model.pt" to this directory.
 3. Run `test.py` to test on the /data/test/ directory.
+
+In order to run the model inference on an image feed with the first detectable camera, run this script:
+```
+python3 videofeed.py
+```
+It will then run the classifier on the first camera available. Make sure you have a camera and monitor available before running the script.
